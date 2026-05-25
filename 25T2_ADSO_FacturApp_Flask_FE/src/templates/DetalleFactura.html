@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle Factura #{{ factura.id }} - FacturApp{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Encabezado de Factura -->
+        <div class="card card-custom mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Factura #{{ factura.id }}</h4>
+                <span class="badge bg-primary fs-6">{{ factura.fecha }}</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted mb-2"><i class="bi bi-person me-1"></i>CLIENTE</h6>
+                        <p class="fs-5 fw-bold mb-1">{{ factura.cliente }}</p>
+                        <p class="text-muted mb-0"><i class="bi bi-envelope me-1"></i>{{ factura.email or 'Sin email' }}</p>
+                        <p class="text-muted mb-0"><i class="bi bi-telephone me-1"></i>{{ factura.telefono or 'Sin teléfono' }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted mb-2"><i class="bi bi-person-badge me-1"></i>VENDEDOR</h6>
+                        <p class="fs-5 fw-bold mb-1">{{ factura.vendedor }}</p>
+                        <p class="text-muted mb-0"><i class="bi bi-calendar-year me-1"></i>Año: {{ factura.anio }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Productos de la Factura -->
+        <div class="card card-custom mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>Productos Facturados</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-end">Precio Unit.</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total_factura = namespace(value=0) %}
+                            {% for prod in productos %}
+                            {% set subtotal = prod.cantidad * prod.precio_unitario %}
+                            {% set total_factura.value = total_factura.value + subtotal %}
+                            <tr>
+                                <td><strong>{{ prod.producto_nombre }}</strong></td>
+                                <td class="text-center">{{ prod.cantidad }}</td>
+                                <td class="text-end">${{ "%.2f"|format(prod.precio_unitario) }}</td>
+                                <td class="text-end fw-bold">${{ "%.2f"|format(subtotal) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-group-divider">
+                            <tr class="table-primary">
+                                <td colspan="3" class="text-end fw-bold fs-5">TOTAL:</td>
+                                <td class="text-end fw-bold fs-5 text-success">${{ "%.2f"|format(total_factura.value) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+            <a href="/lista-facturas" class="btn btn-secondary btn-custom">
+                <i class="bi bi-arrow-left me-2"></i>Volver a Facturas
+            </a>
+            <button onclick="window.print()" class="btn btn-primary btn-custom">
+                <i class="bi bi-printer me-2"></i>Imprimir Factura
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Factura - FacturApp{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-selector {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    .product-selector:hover {
+        border-color: var(--secondary-color);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .total-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+    .add-product-btn {
+        border: 2px dashed var(--secondary-color);
+        background: transparent;
+        color: var(--secondary-color);
+        border-radius: 10px;
+        padding: 15px;
+        width: 100%;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .add-product-btn:hover {
+        background: var(--secondary-color);
+        color: white;
+    }
+    .remove-product {
+        color: var(--accent-color);
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    .remove-product:hover {
+        transform: scale(1.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card card-custom">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0"><i class="bi bi-cart-plus me-2"></i>Crear Nueva Factura</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="/nueva-factura" id="facturaForm">
+                    <!-- Datos de la Factura -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-calendar me-1"></i>Fecha *</label>
+                            <input type="date" class="form-control" name="fecha" id="fechaInput" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-person me-1"></i>Cliente *</label>
+                            <select class="form-select" name="cliente_id" required>
+                                <option value="" selected disabled>Selecciona un cliente...</option>
+                                {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-person-badge me-1"></i>Vendedor *</label>
+                            <select class="form-select" name="vendedor_id" required>
+                                <option value="" selected disabled>Selecciona un vendedor...</option>
+                                {% for vendedor in vendedores %}
+                                <option value="{{ vendedor.id }}">{{ vendedor.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="bi bi-calendar-year me-1"></i>Año *</label>
+                            <select class="form-select" name="anio" required>
+                                <option value="" selected disabled>Selecciona el año...</option>
+                                {% for anio in anios %}
+                                <option value="{{ anio.anio }}">{{ anio.anio }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Productos -->
+                    <h5 class="mb-3"><i class="bi bi-box-seam me-2"></i>Productos</h5>
+                    <div id="productosContainer">
+                        <div class="product-selector" id="producto_0">
+                            <div class="row align-items-center">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Producto *</label>
+                                    <select class="form-select producto-select" name="producto_id[]" required onchange="actualizarPrecio(this)">
+                                        <option value="" selected disabled>Selecciona un producto...</option>
+                                        {% for producto in productos %}
+                                        <option value="{{ producto.id }}" data-precio="{{ producto.valor_unitario }}">
+                                            {{ producto.descripcion }} - ${{ "%.2f"|format(producto.valor_unitario) }} (Stock: {{ producto.stock }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label">Cantidad *</label>
+                                    <input type="number" class="form-control cantidad-input" name="cantidad[]" 
+                                           min="1" value="1" required onchange="calcularTotal()">
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="form-label">Precio Unit.</label>
+                                    <input type="text" class="form-control precio-display" readonly value="$0.00">
+                                </div>
+                                <div class="col-md-1 mb-2 text-center">
+                                    <label class="form-label d-block">&nbsp;</label>
+                                    <i class="bi bi-trash remove-product" onclick="eliminarProducto('producto_0')" style="display:none;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="add-product-btn mb-4" onclick="agregarProducto()">
+                        <i class="bi bi-plus-lg me-2"></i>Agregar Otro Producto
+                    </button>
+
+                    <!-- Total -->
+                    <div class="total-section mb-4">
+                        <div>Total de la Factura</div>
+                        <div id="totalFactura">$0.00</div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/lista-facturas" class="btn btn-secondary btn-custom">
+                            <i class="bi bi-x-lg me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success btn-custom">
+                            <i class="bi bi-check-lg me-2"></i>Crear Factura
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let contadorProductos = 1;
+
+function agregarProducto() {
+    const container = document.getElementById('productosContainer');
+    const nuevoId = 'producto_' + contadorProductos;
+    
+    const productoHTML = `
+        <div class="product-selector" id="${nuevoId}">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Producto *</label>
+                    <select class="form-select producto-select" name="producto_id[]" required onchange="actualizarPrecio(this)">
+                        <option value="" selected disabled>Selecciona un producto...</option>
+                        {% for producto in productos %}
+                        <option value="{{ producto.id }}" data-precio="{{ producto.valor_unitario }}">
+                            {{ producto.descripcion }} - ${{ "%.2f"|format(producto.valor_unitario) }} (Stock: {{ producto.stock }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">Cantidad *</label>
+                    <input type="number" class="form-control cantidad-input" name="cantidad[]" 
+                           min="1" value="1" required onchange="calcularTotal()">
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label class="form-label">Precio Unit.</label>
+                    <input type="text" class="form-control precio-display" readonly value="$0.00">
+                </div>
+                <div class="col-md-1 mb-2 text-center">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <i class="bi bi-trash remove-product" onclick="eliminarProducto('${nuevoId}')"></i>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', productoHTML);
+    contadorProductos++;
+    
+    if (contadorProductos > 1) {
+        document.querySelector('#producto_0 .remove-product').style.display = 'inline-block';
+    }
+}
+
+function eliminarProducto(id) {
+    const elemento = document.getElementById(id);
+    if (elemento) {
+        elemento.remove();
+        calcularTotal();
+    }
+    
+    const productos = document.querySelectorAll('.product-selector');
+    if (productos.length === 1) {
+        productos[0].querySelector('.remove-product').style.display = 'none';
+    }
+}
+
+function actualizarPrecio(select) {
+    const precio = select.options[select.selectedIndex].getAttribute('data-precio');
+    const precioDisplay = select.closest('.product-selector').querySelector('.precio-display');
+    precioDisplay.value = '$' + parseFloat(precio).toFixed(2);
+    calcularTotal();
+}
+
+function calcularTotal() {
+    let total = 0;
+    const productos = document.querySelectorAll('.product-selector');
+    
+    productos.forEach(producto => {
+        const select = producto.querySelector('.producto-select');
+        const cantidad = producto.querySelector('.cantidad-input');
+        
+        if (select.value && cantidad.value) {
+            const precio = parseFloat(select.options[select.selectedIndex].getAttribute('data-precio') || 0);
+            const cant = parseInt(cantidad.value) || 0;
+            total += precio * cant;
+        }
+    });
+    
+    document.getElementById('totalFactura').textContent = '$' + total.toFixed(2);
+}
+
+// Set fecha actual
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaInput = document.getElementById('fechaInput');
+    if (fechaInput && !fechaInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        fechaInput.value = today;
+    }
+});
+</script>
+{% endblock %}

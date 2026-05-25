@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}FacturApp - Inicio{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold" style="color: var(--primary-color);">
+        <i class="bi bi-receipt-cutoff me-3"></i>FacturApp
+    </h1>
+    <p class="lead text-muted">Sistema Integral de Gestión de Facturación</p>
+</div>
+
+<!-- Estadísticas -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <i class="bi bi-people-fill"></i>
+            <div class="number">{{ stats.clientes or 0 }}</div>
+            <div class="label">Clientes</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <i class="bi bi-box-seam-fill"></i>
+            <div class="number">{{ stats.productos or 0 }}</div>
+            <div class="label">Productos</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <i class="bi bi-person-badge-fill"></i>
+            <div class="number">{{ stats.vendedores or 0 }}</div>
+            <div class="label">Vendedores</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <i class="bi bi-file-earmark-text-fill"></i>
+            <div class="number">{{ stats.facturas or 0 }}</div>
+            <div class="label">Facturas</div>
+        </div>
+    </div>
+</div>
+
+<!-- Menú de Acciones Rápidas -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <i class="bi bi-person-plus-fill" style="font-size: 3rem; color: var(--secondary-color);"></i>
+                <h5 class="card-title mt-3">Nuevo Cliente</h5>
+                <p class="card-text text-muted">Registra un nuevo cliente en el sistema.</p>
+                <a href="/nuevo-cliente" class="btn btn-primary btn-custom">
+                    <i class="bi bi-plus-lg me-2"></i>Crear Cliente
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <i class="bi bi-cart-plus-fill" style="font-size: 3rem; color: var(--success-color);"></i>
+                <h5 class="card-title mt-3">Nueva Factura</h5>
+                <p class="card-text text-muted">Genera una nueva factura de venta.</p>
+                <a href="/nueva-factura" class="btn btn-success btn-custom">
+                    <i class="bi bi-plus-lg me-2"></i>Crear Factura
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-custom h-100">
+            <div class="card-body text-center p-4">
+                <i class="bi bi-box-seam-fill" style="font-size: 3rem; color: var(--warning-color);"></i>
+                <h5 class="card-title mt-3">Nuevo Producto</h5>
+                <p class="card-text text-muted">Agrega productos al inventario.</p>
+                <a href="/nuevo-producto" class="btn btn-warning btn-custom text-white">
+                    <i class="bi bi-plus-lg me-2"></i>Crear Producto
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resumen Mensual -->
+{% if stats.resumen %}
+<div class="card card-custom">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Resumen Mensual de Facturas</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Año</th>
+                        <th>Mes</th>
+                        <th>Cantidad de Facturas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in stats.resumen %}
+                    <tr>
+                        <td><span class="badge bg-primary">{{ r.anio }}</span></td>
+                        <td>{{ r.mes }}</td>
+                        <td>
+                            <span class="badge bg-success">{{ r.cantidad_facturas }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,130 @@
+
+
+# Arreglar completamente - usar clases CSS en vez de style inline con Jinja2
+resumen_mensual_fixed = '''{% extends "base.html" %}
+
+{% block title %}Resumen Mensual - FacturApp{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bar-chart-container {
+        min-height: 300px;
+    }
+    .bar {
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px 10px 0 0;
+        min-height: 20px;
+        transition: all 0.5s ease;
+        width: 60%;
+        margin: 0 auto;
+    }
+    .bar-h0 { height: 0px; }
+    .bar-h1 { height: 20px; }
+    .bar-h2 { height: 40px; }
+    .bar-h3 { height: 60px; }
+    .bar-h4 { height: 80px; }
+    .bar-h5 { height: 100px; }
+    .bar-h6 { height: 120px; }
+    .bar-h7 { height: 140px; }
+    .bar-h8 { height: 160px; }
+    .bar-h9 { height: 180px; }
+    .bar-h10 { height: 200px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title"><i class="bi bi-graph-up me-3"></i>Resumen Mensual de Facturas</h2>
+    <a href="/" class="btn btn-secondary btn-custom">
+        <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+    </a>
+</div>
+
+<div class="card card-custom">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Facturación por Mes</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Año</th>
+                        <th>Mes</th>
+                        <th>Cantidad de Facturas</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if resumen %}
+                        {% for r in resumen %}
+                        <tr>
+                            <td><span class="badge bg-primary fs-6">{{ r.anio }}</span></td>
+                            <td>
+                                {% set meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                                                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] %}
+                                <span class="fw-bold">{{ meses[r.mes] }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success fs-6">{{ r.cantidad_facturas }}</span>
+                                <span class="text-muted ms-2">factura{{ 's' if r.cantidad_facturas != 1 else '' }}</span>
+                            </td>
+                            <td>
+                                {% if r.cantidad_facturas >= 10 %}
+                                    <span class="badge bg-success">Excelente</span>
+                                {% elif r.cantidad_facturas >= 5 %}
+                                    <span class="badge bg-warning text-dark">Bueno</span>
+                                {% else %}
+                                    <span class="badge bg-info">Inicio</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="bi bi-graph-down" style="font-size: 3rem;"></i>
+                                <p class="mt-3">No hay datos de facturación registrados</p>
+                                <a href="/nueva-factura" class="btn btn-primary btn-sm">Crear Primera Factura</a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico simple con barras CSS -->
+{% if resumen %}
+{% set max_facturas = resumen|map(attribute='cantidad_facturas')|max %}
+<div class="card card-custom mt-4">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Visualización</h5>
+    </div>
+    <div class="card-body p-4">
+        <div class="row align-items-end bar-chart-container">
+            {% for r in resumen %}
+            {% set altura = (r.cantidad_facturas / max_facturas * 10) | int if max_facturas > 0 else 0 %}
+            {% set altura_clase = 'bar-h' + (altura | string) %}
+            <div class="col text-center">
+                <div class="fw-bold mb-2">{{ r.cantidad_facturas }}</div>
+                <div class="bar {{ altura_clase }}"></div>
+                <div class="mt-2 small text-muted">
+                    {% set meses = ['', 'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                                    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'] %}
+                    {{ meses[r.mes] }} {{ r.anio }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+'''
+
+with open('/mnt/agents/output/templates/ResumenMensual.html', 'w', encoding='utf-8') as f:
+    f.write(resumen_mensual_fixed)
+
+print("✅ ResumenMensual.html arreglado - sin Jinja2 en style inline")

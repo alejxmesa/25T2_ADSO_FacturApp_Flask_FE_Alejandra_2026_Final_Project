@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Cliente - FacturApp{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card card-custom">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>Registrar Nuevo Cliente</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="/nuevo-cliente">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label fw-bold">
+                            <i class="bi bi-person me-1"></i>Nombre Completo *
+                        </label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" 
+                               placeholder="Ej: Juan Pérez García" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">
+                            <i class="bi bi-envelope me-1"></i>Correo Electrónico
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="Ej: juan@email.com">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="telefono" class="form-label fw-bold">
+                            <i class="bi bi-telephone me-1"></i>Teléfono
+                        </label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono" 
+                               placeholder="Ej: 3001234567">
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/lista-clientes" class="btn btn-secondary btn-custom">
+                            <i class="bi bi-x-lg me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success btn-custom">
+                            <i class="bi bi-check-lg me-2"></i>Guardar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Facturas - FacturApp{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title"><i class="bi bi-file-earmark-text me-3"></i>Lista de Facturas</h2>
+    <a href="/nueva-factura" class="btn btn-success btn-custom">
+        <i class="bi bi-plus-lg me-2"></i>Nueva Factura
+    </a>
+</div>
+
+<div class="card card-custom">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th># Factura</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Vendedor</th>
+                        <th>Año</th>
+                        <th>Total</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if facturas %}
+                        {% for factura in facturas %}
+                        <tr>
+                            <td><span class="badge bg-primary">#{{ factura.id }}</span></td>
+                            <td><i class="bi bi-calendar me-1 text-muted"></i>{{ factura.fecha }}</td>
+                            <td><strong>{{ factura.cliente }}</strong></td>
+                            <td><span class="badge bg-info">{{ factura.vendedor }}</span></td>
+                            <td>{{ factura.anio }}</td>
+                            <td class="fw-bold text-success">${{ "%.2f"|format(factura.total or 0) }}</td>
+                            <td class="text-center">
+                                <a href="/detalle-factura/{{ factura.id }}" class="action-btn btn btn-primary btn-sm" title="Ver Detalle">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-3">No hay facturas registradas</p>
+                                <a href="/nueva-factura" class="btn btn-primary btn-sm">Crear Factura</a>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
